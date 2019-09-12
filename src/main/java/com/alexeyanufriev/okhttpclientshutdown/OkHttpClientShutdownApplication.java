@@ -30,6 +30,10 @@ public class OkHttpClientShutdownApplication implements ApplicationRunner {
 
 		requestFactory.destroy();
 
+		if (true) {
+		    throw new RuntimeException("Just a random interruption");
+        }
+
 		// To be able to terminate the app properly this line must be uncommented.
 		// evictConnectionPool(requestFactory);
 
