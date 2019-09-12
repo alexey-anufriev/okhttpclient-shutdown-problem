@@ -16,42 +16,42 @@ import java.lang.reflect.Field;
 @SpringBootApplication
 public class OkHttpClientShutdownApplication implements ApplicationRunner {
 
-	public static void main(String[] args) {
-		new SpringApplicationBuilder(OkHttpClientShutdownApplication.class).web(WebApplicationType.NONE).run(args);
-	}
+    public static void main(String[] args) {
+        new SpringApplicationBuilder(OkHttpClientShutdownApplication.class).web(WebApplicationType.NONE).run(args);
+    }
 
-	@Override
-	public void run(ApplicationArguments args) throws Exception {
-		OkHttp3ClientHttpRequestFactory requestFactory = new OkHttp3ClientHttpRequestFactory();
-		CustomExternalRestTemplate restTemplate = new CustomExternalRestTemplate(requestFactory);
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        OkHttp3ClientHttpRequestFactory requestFactory = new OkHttp3ClientHttpRequestFactory();
+        CustomExternalRestTemplate restTemplate = new CustomExternalRestTemplate(requestFactory);
 
-		ResponseEntity<String> result = restTemplate.exchange("https://google.com", HttpMethod.GET, null, String.class);
-		System.out.println(result.getStatusCode());
+        ResponseEntity<String> result = restTemplate.exchange("https://google.com", HttpMethod.GET, null, String.class);
+        System.out.println(result.getStatusCode());
 
-		requestFactory.destroy();
+        requestFactory.destroy();
 
-		if (true) {
-		    throw new RuntimeException("Just a random interruption");
+        if (true) {
+            throw new RuntimeException("Just a random interruption");
         }
 
-		// To be able to terminate the app properly this line must be uncommented.
-		// evictConnectionPool(requestFactory);
+        // To be able to terminate the app properly this line must be uncommented.
+        // evictConnectionPool(requestFactory);
 
-		System.out.println("finish");
-	}
+        System.out.println("finish");
+    }
 
-	private void evictConnectionPool(OkHttp3ClientHttpRequestFactory requestFactory) throws Exception {
-		Field clientField = OkHttp3ClientHttpRequestFactory.class.getDeclaredField("client");
-		clientField.setAccessible(true);
-		OkHttpClient client = (OkHttpClient) clientField.get(requestFactory);
-		client.connectionPool().evictAll();
-	}
+    private void evictConnectionPool(OkHttp3ClientHttpRequestFactory requestFactory) throws Exception {
+        Field clientField = OkHttp3ClientHttpRequestFactory.class.getDeclaredField("client");
+        clientField.setAccessible(true);
+        OkHttpClient client = (OkHttpClient) clientField.get(requestFactory);
+        client.connectionPool().evictAll();
+    }
 
-	public class CustomExternalRestTemplate extends RestTemplate {
+    public class CustomExternalRestTemplate extends RestTemplate {
 
-		public CustomExternalRestTemplate(OkHttp3ClientHttpRequestFactory requestFactory) {
-			super(requestFactory);
-		}
-	}
+        public CustomExternalRestTemplate(OkHttp3ClientHttpRequestFactory requestFactory) {
+            super(requestFactory);
+        }
+    }
 
 }
