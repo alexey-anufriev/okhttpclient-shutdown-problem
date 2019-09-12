@@ -18,18 +18,20 @@ public class OkHttpClientShutdownApplication implements ApplicationRunner {
 	}
 
 	@Override
-	public void run(ApplicationArguments args) {
-		CustomExternalRestTemplate restTemplate = new CustomExternalRestTemplate();
+	public void run(ApplicationArguments args) throws Exception {
+		OkHttp3ClientHttpRequestFactory requestFactory = new OkHttp3ClientHttpRequestFactory();
+		CustomExternalRestTemplate restTemplate = new CustomExternalRestTemplate(requestFactory);
 		ResponseEntity<String> result = restTemplate.exchange("https://google.com", HttpMethod.GET, null, String.class);
 		System.out.println(result.getStatusCode());
+		requestFactory.destroy();
 
 		System.out.println("finish");
 	}
 
 	public class CustomExternalRestTemplate extends RestTemplate {
 
-		public CustomExternalRestTemplate() {
-			super(new OkHttp3ClientHttpRequestFactory());
+		public CustomExternalRestTemplate(OkHttp3ClientHttpRequestFactory requestFactory) {
+			super(requestFactory);
 		}
 	}
 
